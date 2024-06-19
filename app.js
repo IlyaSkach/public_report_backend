@@ -15,13 +15,14 @@ const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 
 
-app.use(
-  cors({
-    origin: "http://localhost:3000/",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+// app.use(
+//   cors({
+//     origin: "http://localhost:3000/",
+//     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//   })
+// );
+app.use(cors());
 
 app.use(express.json());
 
