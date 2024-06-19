@@ -243,6 +243,41 @@ app.get("/socialNames", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`Server is running at http://localhost:${port}`);
+// });
+
+// Функция для проверки подключения к базе данных
+function checkDatabaseConnection() {
+  return new Promise((resolve, reject) => {
+    const connection = mysql.createConnection({
+      host: '95.31.212.54',
+      port: '23031',
+      user: 'user',
+      password: 'au--Tw3fyP@JjI3x',
+      database: 'social_stat',
+    });
+
+    connection.connect(err => {
+      if (err) {
+        console.error('Ошибка подключения к базе данных:', err);
+        reject(err);
+        return;
+      }
+      console.log('Успешное подключение к базе данных');
+      connection.end();
+      resolve();
+    });
+  });
+}
+
+// Проверяем подключение к БД перед запуском сервера
+checkDatabaseConnection()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server is running at http://localhost:${port}`);
+    });
+  })
+  .catch(err => {
+    console.error('Не удалось подключиться к базе данных, сервер не запущен.');
+  });
