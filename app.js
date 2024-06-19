@@ -4,6 +4,7 @@ const CONFIG = require("./config");
 const cors = require("cors");
 const session = require("express-session");
 require('dotenv').config();
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const app = express();
 const port = 3001;
