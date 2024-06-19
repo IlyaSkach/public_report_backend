@@ -6,6 +6,9 @@ const session = require("express-session");
 require('dotenv').config();
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
+
+
+
 const app = express();
 const port = 3001;
 const bcrypt = require("bcrypt");
@@ -112,7 +115,7 @@ app.use(
     secret: "3cDf!9*#sGvP",
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true }, // Для HTTPS установите в true
+    // cookie: { secure: false }, // Для HTTPS установите в true
   })
 );
 
