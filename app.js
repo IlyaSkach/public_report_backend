@@ -17,7 +17,7 @@ const jwt = require('jsonwebtoken');
 
 app.use(
   cors({
-    origin: "https://main--timely-churros-b400b1.netlify.app/",
+    origin: "http://localhost:3000/",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: ["Content-Type", "Authorization"],
   })
