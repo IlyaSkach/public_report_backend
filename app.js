@@ -17,7 +17,7 @@ const jwt = require('jsonwebtoken');
 
 app.use(
   cors({
-    origin: "https://main--bejewelled-toffee-9bccd9.netlify.app/",
+    origin: "https://main--timely-churros-b400b1.netlify.app/",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: ["Content-Type", "Authorization"],
   })
