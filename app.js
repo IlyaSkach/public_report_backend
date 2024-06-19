@@ -14,7 +14,7 @@ const jwt = require('jsonwebtoken');
 
 app.use(
   cors({
-    // origin: "http://localhost:3000",
+    origin: "https://main--bejewelled-toffee-9bccd9.netlify.app/",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: ["Content-Type", "Authorization"],
   })
