@@ -111,7 +111,7 @@ app.use(
     secret: "3cDf!9*#sGvP",
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }, // Для HTTPS установите в true
+    cookie: { secure: true }, // Для HTTPS установите в true
   })
 );
 
