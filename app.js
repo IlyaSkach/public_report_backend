@@ -30,16 +30,13 @@ app.use(express.json());
 async function authenticateUser(req) {
   console.log("Функция authenticateUser вызвана");
   console.log("Заголовки запроса:", req.headers); 
-  // Убедитесь, что заголовок Authorization существует и начинается с 'Bearer '
   if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
     console.error("Заголовок Authorization отсутствует или неверный формат");
     return null;
   }
-
   // Извлекаем токен JWT из заголовка Authorization
   const token = req.headers.authorization.split(' ')[1];
   console.log("Полученный токен:", token);
-
   // Добавляем проверку на null или пустую строку для токена
   if (!token || token === 'null') {
     console.error("Токен не предоставлен или неверный");
@@ -69,7 +66,7 @@ async function authenticateUser(req) {
 }
 
 app.get("/api/user", async (req, res) => {
-  // Предположим, у вас есть функция authenticateUser, которая проверяет, аутентифицирован ли пользователь
+
   const user = await authenticateUser(req);
   if (user) {
     // Если пользователь аутентифицирован, отправляем его данные
@@ -77,10 +74,10 @@ app.get("/api/user", async (req, res) => {
       id: user.id,
       username: user.username,
       role: user.role
-      // Добавьте сюда любые другие данные пользователя, которые вам нужны
+  
     });
   } else {
-    // Если пользователь не аутентифицирован, отправляем ошибку
+
     res.status(401).json({ error: 'Пользователь не аутентифицирован' });
   }
 });
@@ -98,11 +95,11 @@ app.post("/register", async (req, res) => {
     // Хеширование пароля
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // SQL запрос для добавления пользователя
+
     const sql =
       "INSERT INTO simplauth_users (username, password, role) VALUES (?, ?, ?)";
 
-    // Вызов функции для выполнения запроса к БД
+    
     await queryDb(sql, [username, hashedPassword, role]);
 
     res.send("Пользователь успешно зарегистрирован");
@@ -152,7 +149,6 @@ function isAuthenticated(req, res, next) {
   }
 }
 
-// Используйте isAuthenticated как middleware для защищенных маршрутов
 app.get("/protected-route", isAuthenticated, (req, res) => {
   res.send("Это защищенный маршрут");
 });
@@ -217,7 +213,14 @@ app.delete("/data/users/:userId", async (req, res) => {
 app.post("/addData", async (req, res) => {
   const { link, purchase_date, price, external_id } = req.body;
   const sql =
-    "INSERT INTO public_page (link, purchase_date, price, external_id) VALUES (?, ?, ?, ?)";
+  `
+    INSERT INTO public_page (link, purchase_date, price, external_id) 
+    VALUES (?, ?, ?, ?) 
+    ON DUPLICATE KEY UPDATE 
+    link = VALUES(link), 
+    purchase_date = VALUES(purchase_date), 
+    price = VALUES(price);
+  `;
   try {
     const result = await queryDb(sql, [link, purchase_date, price, external_id]);
     res.json("Data added to database");
@@ -227,11 +230,13 @@ app.post("/addData", async (req, res) => {
 });
 
 app.post("/addMunual", async (req, res) => {
-  const { name, amount, entry_date } = req.body;
-  const sql =
-    "INSERT INTO munual_entries (name, amount, entry_date) VALUES (?, ?, ?)";
+  const { name, value, date, publicId, type } = req.body;
+ 
+  const sql = "INSERT INTO finance (name, value, date, public_page_id, type) VALUES (?, ?, ?, ?, 1)";
   try {
-    const result = await queryDb(sql, [name, amount, entry_date]);
+   
+    console.log("Inserting values:", { name, value, date, publicId, type });
+    const result = await queryDb(sql, [name, value, date, publicId, type]);
     res.json("Data added to database");
   } catch (err) {
     res.status(500).send("ErrorM: " + err.message);
@@ -240,18 +245,37 @@ app.post("/addMunual", async (req, res) => {
 
 app.get("/socialNames", async (req, res) => {
   try {
-    const result = await queryDb("SELECT name FROM social_name");
+    const result = await queryDb("SELECT id, name FROM public_page");
     res.json(result);
   } catch (err) {
     res.status(500).send("Ошибка: " + err.message);
   }
 });
 
-// app.listen(port, () => {
-//   console.log(`Server is running at http://localhost:${port}`);
-// });
+app.get("/entries", async (req, res) => {
+  try {
+    const result = await queryDb("SELECT * FROM finance");
+    res.json(result);
+  } catch (err) {
+    res.status(500).send("Error: " + err);
+  }
+});
 
-// Функция для проверки подключения к базе данных
+app.delete("/entries/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    const result = await queryDb("DELETE FROM finance WHERE id = ?", [id]);
+    if (result.affectedRows > 0) {
+      res.send("Пользователь успешно удален");
+    } else {
+      res.status(404).send("Пользователь не найден");
+    }
+  } catch (err) {
+    res.status(500).send("Ошибка при удалении пользователя: " + err);
+  }
+});
+
+
 function checkDatabaseConnection() {
   return new Promise((resolve, reject) => {
     const connection = mysql.createConnection({
@@ -259,7 +283,7 @@ function checkDatabaseConnection() {
       port: '23031',
       user: 'user',
       password: 'au--Tw3fyP@JjI3x',
-      database: 'social_stat',
+      database: 'test_zpbase',
     });
 
     connection.connect(err => {
@@ -275,7 +299,7 @@ function checkDatabaseConnection() {
   });
 }
 
-// Проверяем подключение к БД перед запуском сервера
+
 checkDatabaseConnection()
   .then(() => {
     app.listen(port, () => {
